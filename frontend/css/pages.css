@@ -1,0 +1,38 @@
+/* PredictX — Pages CSS */
+
+/* Dashboard live section */
+.live-section-header { display:flex; align-items:center; gap:var(--space-2); padding:var(--space-4) var(--page-gutter) var(--space-3); }
+.live-section-title { font-size:var(--text-base); font-weight:700; color:var(--text-bright); }
+.live-count-badge { background:var(--live); color:#fff; font-size:var(--text-xs); font-weight:700; padding:2px 8px; border-radius:var(--radius-full); font-family:var(--font-mono); }
+
+/* Match detail */
+.match-detail-header { padding:var(--space-6) var(--page-gutter); background:linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-base) 100%); border-bottom:1px solid var(--border); }
+.match-detail-league { display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-4); }
+.match-detail-league-text { font-size:var(--text-sm); color:var(--text-muted); font-weight:500; }
+.match-detail-teams { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:var(--space-4); }
+.match-detail-team { display:flex; flex-direction:column; align-items:center; gap:var(--space-2); text-align:center; }
+.match-detail-team-name { font-size:var(--text-base); font-weight:700; color:var(--text-bright); line-height:1.2; }
+.match-detail-scoreline { display:flex; flex-direction:column; align-items:center; gap:var(--space-1); }
+.match-detail-score { font-size:var(--text-3xl); font-weight:700; font-family:var(--font-mono); color:var(--text-bright); letter-spacing:-0.04em; font-variant-numeric:tabular-nums; }
+.match-detail-ht { font-size:var(--text-xs); color:var(--text-muted); font-family:var(--font-mono); }
+.match-detail-status { display:flex; align-items:center; justify-content:center; gap:var(--space-2); margin-top:var(--space-4); }
+
+/* Team header */
+.team-header { padding:var(--space-6) var(--page-gutter); display:flex; align-items:center; gap:var(--space-4); border-bottom:1px solid var(--border); }
+.team-header-name { font-size:var(--text-2xl); font-weight:700; color:var(--text-bright); }
+.team-header-meta { font-size:var(--text-sm); color:var(--text-muted); }
+.team-header-elo { font-family:var(--font-mono); font-size:var(--text-base); color:var(--accent-text); margin-top:var(--space-1); }
+
+/* Methodology page */
+.method-section { padding:var(--space-6) var(--page-gutter); }
+.method-section + .method-section { border-top:1px solid var(--border); }
+.method-title { font-size:var(--text-lg); font-weight:700; color:var(--text-bright); margin-bottom:var(--space-3); }
+.method-desc { color:var(--text-secondary); line-height:1.7; font-size:var(--text-base); }
+.method-formula { background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-4); margin-top:var(--space-3); font-family:var(--font-mono); font-size:var(--text-sm); color:var(--accent-text); overflow-x:auto; }
+.method-warning { padding:var(--space-4); background:var(--yellow-dim); border:1px solid rgba(255,179,64,0.2); border-radius:var(--radius-md); color:var(--yellow); font-size:var(--text-sm); margin-top:var(--space-4); }
+
+/* Accuracy page */
+.accuracy-metric { display:flex; flex-direction:column; align-items:center; padding:var(--space-6); background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); text-align:center; }
+.accuracy-metric-value { font-size:var(--text-3xl); font-weight:700; font-family:var(--font-mono); color:var(--text-bright); margin-bottom:var(--space-2); }
+.accuracy-metric-label { font-size:var(--text-sm); color:var(--text-muted); }
+.accuracy-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3); padding:var(--page-gutter); }

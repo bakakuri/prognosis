@@ -1,0 +1,61 @@
+/* PredictX — Responsive CSS */
+
+/* Very small phones */
+@media (max-width: 359px) {
+  :root { --page-gutter:12px; }
+  .match-card-team-name { font-size:var(--text-sm); }
+  .prob-value { font-size:var(--text-base); }
+}
+
+/* Small phones (360-374px) - base mobile design */
+@media (min-width: 360px) {
+  .exact-scores-grid { grid-template-columns:repeat(4,1fr); }
+}
+
+/* Medium phones (390-430px) */
+@media (min-width: 390px) {
+  :root { --page-gutter:18px; }
+  .prediction-outcome-prob { font-size:var(--text-3xl); }
+}
+
+/* Large phones */
+@media (min-width: 430px) {
+  .match-card-teams { gap:var(--space-4); }
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  :root {
+    --page-gutter:24px;
+    --header-height:60px;
+  }
+  .app-body { margin-left:64px; }
+  .grid-2 { grid-template-columns:1fr 1fr; }
+  .grid-3 { grid-template-columns:repeat(3,1fr); }
+  .exact-scores-grid { grid-template-columns:repeat(6,1fr); }
+  .match-card-teams { gap:var(--space-6); }
+  .accuracy-grid { grid-template-columns:repeat(4,1fr); }
+  .prediction-1x2 { gap:2px; }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  :root { --page-gutter:32px; }
+  .app-body { margin-left:var(--sidebar-width); }
+  .page-view { max-width:var(--max-content-width); }
+  .match-cards-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3); }
+  .sidebar-nav { display:flex; }
+}
+
+/* Wide desktop */
+@media (min-width: 1280px) {
+  :root { --page-gutter:40px; }
+}
+
+/* Touch targets — ensure all interactive elements have 44px min */
+@media (hover:none) and (pointer:coarse) {
+  .btn, .tab-btn, .bottom-nav-item, .sidebar-item,
+  .match-card, .league-card, .team-card, .collapsible-trigger {
+    min-height:44px;
+  }
+}
