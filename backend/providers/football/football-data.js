@@ -14,7 +14,7 @@ function statusToCode(s) {
 }
 
 function normalizeTeam(t) {
-  return { providerId: String(t.id), name: t.name || t.shortName,
+  return { providerId: String(t.id), name: t.name || t.shortName || `Team ${t.id}`,
     code: t.tla || null, country: t.area?.name || null,
     logo: t.crest || null, venue: { name: null, city: null } };
 }
