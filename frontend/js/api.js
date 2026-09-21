@@ -3,9 +3,10 @@
  * Communicates with the PredictX backend REST API
  */
 
-const BASE_URL = window.location.port === '5000'
-  ? 'http://localhost:3000/api'   // Dev: different ports
-  : '/api';                        // Prod: same origin
+const BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api'
+  : 'https://prognosis-14sv.onrender.com/api';
+
 
 const cache = new Map();
 const CACHE_TTL = {
