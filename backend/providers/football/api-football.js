@@ -31,8 +31,8 @@ async function apiRequest(endpoint, params = {}) {
   return retry(async () => {
     const response = await axios.get(`${BASE_URL}${endpoint}`, {
       headers: {
-        'x-rapidapi-host': env.FOOTBALL_API.HOST,
-        'x-rapidapi-key': API_KEY,
+'x-apisports-host': env.FOOTBALL_API.HOST,
+'x-apisports-key': API_KEY,
       },
       params,
       timeout: 15000,
