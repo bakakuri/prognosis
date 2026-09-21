@@ -7,11 +7,9 @@ const { todayUTC, daysFromNow } = require('../utils/date');
 const { sleep } = require('../utils/helpers');
 
 const SYNC_DAYS_AHEAD = 7;
-const RATE_LIMIT_DELAY = 300; // ms between API calls
+const RATE_LIMIT_DELAY = 300;
+const PROVIDER_NAME = 'football-data';
 
-/**
- * Get all active league IDs from the database
- */
 async function getActiveLeagueIds() {
   const result = await db.query(
     `SELECT id, provider_id, current_season FROM leagues WHERE is_active = TRUE ORDER BY priority ASC`
@@ -19,9 +17,6 @@ async function getActiveLeagueIds() {
   return result.rows;
 }
 
-/**
- * Upsert a team into the database
- */
 async function upsertTeam(teamData) {
   const result = await db.query(
     `INSERT INTO teams (provider_id, provider_name, name, code, country, logo, venue_name, venue_city, venue_capacity)
@@ -30,13 +25,11 @@ async function upsertTeam(teamData) {
      DO UPDATE SET
        name = EXCLUDED.name,
        logo = EXCLUDED.logo,
-       venue_name = EXCLUDED.venue_name,
-       venue_city = EXCLUDED.venue_city,
        updated_at = NOW()
      RETURNING id`,
     [
       teamData.providerId,
-      'api-football',
+      PROVIDER_NAME,
       teamData.name,
       teamData.code || null,
       teamData.country || null,
@@ -49,16 +42,13 @@ async function upsertTeam(teamData) {
   return result.rows[0].id;
 }
 
-/**
- * Get or create a league's current season record
- */
 async function getOrCreateSeason(leagueId, year) {
+  if (!year) return null;
   const existing = await db.query(
     `SELECT id FROM seasons WHERE league_id = $1 AND year = $2`,
     [leagueId, year]
   );
   if (existing.rows.length > 0) return existing.rows[0].id;
-
   const result = await db.query(
     `INSERT INTO seasons (league_id, year, is_current) VALUES ($1, $2, TRUE) RETURNING id`,
     [leagueId, year]
@@ -66,28 +56,25 @@ async function getOrCreateSeason(leagueId, year) {
   return result.rows[0].id;
 }
 
-/**
- * Map API-Football status codes to our status codes
- */
 function normalizeStatus(code) {
   const map = {
+    // football-data.org
+    SCHEDULED: 'NS', TIMED: 'NS', IN_PLAY: '1H', PAUSED: 'HT',
+    FINISHED: 'FT', CANCELLED: 'CANC', POSTPONED: 'PST',
+    SUSPENDED: 'PST', AWARDED: 'FT',
+    // api-football (fallback)
     TBD: 'NS', NS: 'NS', '1H': '1H', HT: 'HT', '2H': '2H',
     ET: 'ET', BT: 'BT', P: 'P', FT: 'FT', AET: 'AET',
-    PEN: 'PEN', PST: 'PST', CANC: 'CANC', ABD: 'ABD', AWD: 'AWD', WO: 'WO',
-    LIVE: '1H',
+    PEN: 'PEN', PST: 'PST', CANC: 'CANC', ABD: 'ABD',
   };
-  return map[code] || code;
+  return map[code] || 'NS';
 }
 
-const LIVE_STATUSES = new Set(['1H', 'HT', '2H', 'ET', 'BT', 'P', 'LIVE']);
-const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD']);
+const LIVE_STATUSES = new Set(['1H', 'HT', '2H', 'ET', 'BT', 'P', 'IN_PLAY', 'PAUSED']);
 
-/**
- * Upsert a fixture/match
- */
 async function upsertMatch(fixture, leagueDbId, seasonId, homeTeamDbId, awayTeamDbId) {
   const statusCode = normalizeStatus(fixture.status.code);
-  const isLive = LIVE_STATUSES.has(statusCode);
+  const isLive = LIVE_STATUSES.has(statusCode) || LIVE_STATUSES.has(fixture.status.code);
 
   await db.query(
     `INSERT INTO matches (
@@ -112,7 +99,7 @@ async function upsertMatch(fixture, leagueDbId, seasonId, homeTeamDbId, awayTeam
         updated_at     = NOW()`,
     [
       fixture.providerId,
-      'api-football',
+      PROVIDER_NAME,
       leagueDbId,
       seasonId,
       homeTeamDbId,
@@ -124,30 +111,24 @@ async function upsertMatch(fixture, leagueDbId, seasonId, homeTeamDbId, awayTeam
       statusCode,
       fixture.status.long || null,
       fixture.status.elapsed || null,
-      fixture.score.home,
-      fixture.score.away,
-      fixture.score.halftime.home,
-      fixture.score.halftime.away,
-      fixture.league.round || null,
+      fixture.score?.home ?? null,
+      fixture.score?.away ?? null,
+      fixture.score?.halftime?.home ?? null,
+      fixture.score?.halftime?.away ?? null,
+      fixture.league?.round || null,
       isLive,
     ]
   );
 }
 
-/**
- * Log provider sync result
- */
-async function logSync(provider, endpoint, status, recordsSynced, errorMessage = null) {
+async function logSync(prov, endpoint, status, recordsSynced, errorMessage = null) {
   await db.query(
     `INSERT INTO provider_logs (provider, endpoint, status, records_synced, error_message)
      VALUES ($1, $2, $3, $4, $5)`,
-    [provider, endpoint, status, recordsSynced, errorMessage]
+    [prov, endpoint, status, recordsSynced, errorMessage]
   ).catch(err => logger.warn('Failed to write provider log', { error: err.message }));
 }
 
-/**
- * Main sync function — fetches fixtures for all active leagues
- */
 async function run() {
   const startTime = Date.now();
   logger.info('Fixtures sync: starting');
@@ -184,22 +165,20 @@ async function run() {
             upsertTeam(fixture.awayTeam),
           ]);
 
-          const seasonId = await getOrCreateSeason(league.id, fixture.league.season);
+          const season = fixture.league?.season || league.current_season;
+          const seasonId = await getOrCreateSeason(league.id, season);
           await upsertMatch(fixture, league.id, seasonId, homeTeamId, awayTeamId);
           totalSynced++;
         } catch (innerErr) {
-          logger.warn('Fixtures sync: failed to upsert match', {
-            providerId: fixture.providerId,
-            error: innerErr.message,
-          });
+          console.error('Fixtures sync ERROR:', fixture.providerId, innerErr.message);
         }
       }
 
-      await logSync('api-football', `/fixtures?league=${league.provider_id}`, 'success', fixtures.length);
+      await logSync(PROVIDER_NAME, `/fixtures?league=${league.provider_id}`, 'success', fixtures.length);
     } catch (err) {
       errors++;
       logger.error(`Fixtures sync: failed for league ${league.provider_id}`, { error: err.message });
-      await logSync('api-football', `/fixtures?league=${league.provider_id}`, 'error', 0, err.message);
+      await logSync(PROVIDER_NAME, `/fixtures?league=${league.provider_id}`, 'error', 0, err.message);
     }
   }
 
