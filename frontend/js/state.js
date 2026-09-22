@@ -86,9 +86,7 @@ window.addEventListener('offline', () => {
 
 // Initial offline check
 if (!navigator.onLine) {
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('offline-banner')?.removeAttribute('hidden');
-  });
+  document.getElementById('offline-banner')?.removeAttribute('hidden');
 }
 
 export const store = { get, set, subscribe };
