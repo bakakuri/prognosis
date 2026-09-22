@@ -2,8 +2,7 @@
  * PredictX Service Worker
  * Cache strategy: Network-first for API, Cache-first for static assets
  */
-
-const CACHE_NAME = 'predictx-v1';
+const CACHE_NAME = 'predictx-v2';
 const API_CACHE_NAME = 'predictx-api-v1';
 
 const STATIC_ASSETS = [
