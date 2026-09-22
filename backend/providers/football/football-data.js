@@ -58,10 +58,13 @@ async function req(path, params = {}) {
 
 async function getFixtures({ leagueId, season, from, to }) {
   try {
-    const params = {};
-    if (from) params.dateFrom = from;
-    if (to) params.dateTo = to;
-    const data = await req(`/competitions/${leagueId}/matches`, params);
+    const today = new Date().toISOString().split('T')[0];
+    const future = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const data = await req('/matches', {
+      competitions: leagueId,
+      dateFrom: from || today,
+      dateTo: to || future,
+    });
     await sleep(DELAY);
     return (data.matches || []).map(normalizeMatch);
   } catch (err) {
