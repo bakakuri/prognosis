@@ -96,7 +96,7 @@ async function run() {
           leagueId: league.provider_id,
           season: league.current_season,
           from: todayUTC(),
-          to: daysFromNow(14),
+          to: daysFromNow(60),
         });
 
         logger.info(`Fixtures sync: ${league.provider_id} → ${fixtures.length} fixtures`);
