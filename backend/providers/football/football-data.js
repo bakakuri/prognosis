@@ -56,30 +56,25 @@ async function req(path, params = {}) {
   return res.data;
 }
 
-async function getFixtures({ leagueId, season, from, to }) {
+
+async function getLiveFixtures() {
   try {
-    const today = new Date().toISOString().split('T')[0];
-    const future = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const data = await req('/matches', {
-      competitions: leagueId,
-      dateFrom: from || today,
-      dateTo: to || future,
+    const data = await req('/matches', { stasync function getFixtures({ leagueId, season, from, to }) {
+  try {
+    const data = await req(`/competitions/${leagueId}/matches`, {
+      status: 'SCHEDULED,TIMED'
     });
     await sleep(DELAY);
     return (data.matches || []).map(normalizeMatch);
   } catch (err) {
-    if (err.response?.status === 404 || err.response?.status === 403) {
+    if ([400, 403, 404].includes(err.response?.status)) {
       logger.warn(`football-data: ${leagueId} not available`);
       await sleep(DELAY);
       return [];
     }
     throw err;
   }
-}
-
-async function getLiveFixtures() {
-  try {
-    const data = await req('/matches', { status: 'IN_PLAY,PAUSED' });
+    }atus: 'IN_PLAY,PAUSED' });
     return (data.matches || []).map(normalizeMatch);
   } catch { return []; }
 }
