@@ -7,7 +7,7 @@ const state = {
   liveCount: 0,
   favorites: loadFavorites(),
   currentRoute: null,
-  isOnline: navigator.onLine,
+  isOnline: true,
   liveMatches: [],
 };
 
@@ -83,11 +83,6 @@ window.addEventListener('offline', () => {
   set('isOnline', false);
   document.getElementById('offline-banner')?.removeAttribute('hidden');
 });
-
-// Initial offline check
-if (!navigator.onLine) {
-  document.getElementById('offline-banner')?.removeAttribute('hidden');
-}
 
 export const store = { get, set, subscribe };
 export default store;
