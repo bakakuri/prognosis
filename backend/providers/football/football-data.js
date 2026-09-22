@@ -58,7 +58,7 @@ async function req(path, params = {}) {
 
 async function getFixtures({ leagueId, season, from, to }) {
   try {
-    const params = { season };
+    const params = {};
     if (from) params.dateFrom = from;
     if (to) params.dateTo = to;
     const data = await req(`/competitions/${leagueId}/matches`, params);
