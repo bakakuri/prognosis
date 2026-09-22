@@ -38,8 +38,8 @@ router.all('/sync/:job', asyncHandler(async (req, res) => {
   if (!valid.includes(jobName)) {
     return res.status(400).json({ error: { message: `Unknown job: ${req.params.job}` } });
   }
-  await scheduler.runNow(jobName);
-  res.json({ message: `Job "${jobName}" triggered`, timestamp: new Date().toISOString() });
+  scheduler.runNow(jobName).catch(err => console.error('Job error:', err.message));
+res.json({ message: `Job "${jobName}" triggered`, timestamp: new Date().toISOString() });
 }));
 
 router.get('/logs', asyncHandler(async (req, res) => {
