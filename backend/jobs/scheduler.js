@@ -107,15 +107,7 @@ async function init() {
   startAll();
 
   // Run an initial fixtures sync at startup (with small delay)
-  setTimeout(async () => {
-    try {
-      logger.info('Scheduler: running initial startup sync');
-      await fixturesSync.run();
-      await predictionsSync.run();
-    } catch (err) {
-      logger.error('Scheduler: startup sync failed', { error: err.message });
-    }
-  }, 5000);
+
 
   logger.info(`Scheduler: initialized ${jobs.size} jobs`);
 }
